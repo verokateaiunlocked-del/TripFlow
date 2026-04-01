@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Processing System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-orange: #FF8C42;
+            --primary-orange-dark: #E67E3C;
+            --primary-orange-light: #FFB380;
+            --primary-green: #2DB679;
+            --primary-green-dark: #26A66D;
+            --primary-green-light: #5FD5A1;
+            --gray-100: #F8F9FA;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-400: #CED4DA;
+            --gray-500: #ADB5BD;
+            --gray-700: #495057;
+            --gray-900: #212529;
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --border-color: #DEE2E6;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        header .logo-badge {
+            width: 45px;
+            height: 45px;
+            background: var(--primary-orange);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        header nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        header nav button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        header nav button:hover, header nav button.active {
+            background: var(--primary-orange);
+        }
+
+        header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-left: 1rem;
+            border-left: 1px solid rgba(255,255,255,0.3);
+        }
+
+        header .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .stat-card {
+            text-align: center;
+            border-top: 4px solid var(--primary-green);
+        }
+
+        .stat-card.orange {
+            border-top-color: var(--primary-orange);
+        }
+
+        .stat-card.danger {
+            border-top-color: var(--danger);
+        }
+
+        .stat-card.warning {
+            border-top-color: var(--warning);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin: 0.5rem 0;
+        }
+
+        .stat-card.orange .stat-number {
+            color: var(--primary-orange);
+        }
+
+        .stat-card.danger .stat-number {
+            color: var(--danger);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(45, 182, 121, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Buttons */
+        button, .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-green-dark);
+        }
+
+        .btn-primary.orange {
+            background: var(--primary-orange);
+        }
+
+        .btn-primary.orange:hover {
+            background: var(--primary-orange-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #C82333;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+            color: white;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background: var(--gray-100);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #721C24;
+        }
+
+        .badge-info {
+            background: rgba(23, 162, 184, 0.15);
+            color: #0C5460;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary-green);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Filters & Search */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: #155724;
+            border-left: 4px solid #28A745;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #721C24;
+            border-left: 4px solid #DC3545;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.15);
+            color: #0C5460;
+            border-left: 4px solid #17A2B8;
+        }
+
+        /* Approval Workflow */
+        .workflow-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .workflow-step::before {
+            content: '';
+            position: absolute;
+            left: 25px;
+            top: 70px;
+            width: 2px;
+            height: calc(100% + 30px);
+            background: var(--border-color);
+        }
+
+        .workflow-step:last-child::before {
+            display: none;
+        }
+
+        .workflow-indicator {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .workflow-indicator.pending {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .workflow-indicator.approved {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .workflow-indicator.rejected {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .workflow-content {
+            flex: 1;
+            padding-top: 0.5rem;
+        }
+
+        .workflow-role {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .workflow-status {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-comment {
+            background: var(--gray-100);
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            header nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            header nav button {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .workflow-step {
+                gap: 1rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            header, .filter-section, .btn, .modal {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .card, table {
+                box-shadow: none;
+                border: 1px solid var(--border-color);
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-indicator.approved {
+            background: var(--success);
+        }
+
+        .status-indicator.pending {
+            background: var(--warning);
+        }
+
+        .status-indicator.rejected {
+            background: var(--danger);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-button {
+            background: white;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: var(--primary-green);
+            color: white;
+            border-color: var(--primary-green);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-badge">✓</div>
+                <span>Mission Control</span>
+            </div>
+            <nav>
+                <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+                <button class="nav-btn" data-section="submit-mission">New Mission</button>
+                <button class="nav-btn" data-section="missions">My Missions</button>
+                <button class="nav-btn" data-section="approvals">Approvals</button>
+                <button class="nav-btn" data-section="reports">Reports</button>
+            </nav>
+            <div class="user-info">
+                <span id="userName">Loading...</span>
+                <div class="user-avatar" id="userAvatar">A</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Alert Box -->
+        <div id="alertBox" class="alert"></div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h1 style="margin-bottom: 1.5rem; color: var(--primary-green);">Dashboard</h1>
+            
+            <div class="dashboard-grid">
+                <div class="card stat-card">
+                    <p class="stat-label">Pending Approvals</p>
+                    <p class="stat-number" id="pendingCount">0</p>
+                </div>
+                <div class="card stat-card orange">
+                    <p class="stat-label">Total Missions</p>
+                    <p class="stat-number" id="totalMissions">0</p>
+                </div>
+                <div class="card stat-card">
+                    <p class="stat-label">Approved This Month</p>
+                    <p class="stat-number" id="approvedMonth">0</p>
+                </div>
+                <div class="card stat-card danger">
+                    <p class="stat-label">Rejected This Month</p>
+                    <p class="stat-number" id="rejectedMonth">0</p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h2 style="color: var(--primary-green); margin-bottom: 1.5rem;">Recent Missions</h2>
+                <div id="recentMissions"></div>
+            </div>
+        </section>
+
+        <!-- Submit Mission Section -->
+        <section id="submit-mission" class="section">
+            <div class="card">
+                <h1 style="color: var(--primary-green); margin-bottom: 1.5rem;">Submit New Mission Request</h1>
+                
+                <form id="missionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="staffName">Full Name</label>
+                            <input type="text" id="staffName" placeholder="Your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" placeholder="Your department" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="missionTitle">Mission Title</label>
+                        <input type="text" id="missionTitle" placeholder="Brief title of the mission" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="missionDescription">Mission Description</label>
+                        <textarea id="missionDescription" placeholder="Detailed description of the mission objectives" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="totalDays">Total Days</label>
+                            <input type="number" id="totalDays" min="1" placeholder="Auto-calculated" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location/Destination</label>
+                            <input type="text" id="location" placeholder="Where will you be traveling?" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budget">Budget Amount (Est.)</label>
+                            <input type="number" id="budget" min="0" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="budgetCode">Budget Code</label>
+                            <input type="text" id="budgetCode" placeholder="e.g., PROJ-2024-001" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="supervisor">Supervisor Name</label>
+                        <input type="text" id="supervisor" placeholder="Your immediate supervisor" required>
+                    </div>
+
+                    <div class="form-row">
+                        <button type="submit" class="btn btn-primary btn-block">Submit Mission Request</button>
+                        <button type="reset" class="btn btn-secondary btn-block">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- My Missions Section -->
+        <section id="missions" class="section">
+            <div style="margin-bottom: 1.5rem;">
+                <h1 style="color: var(--primary-green); margin-bottom: 1rem;">My Missions</h1>
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <input type="text" id="searchInput" placeholder="Search by title or location...">
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <input type="month" id="monthFilter">
+                    </div>
+                </div>
+            </div>
+
+            <div id="missionsTable"></div>
+        </section>
+
+        <!-- Approvals Section -->
+        <section id="approvals" class="section">
+            <h1 style="color: var(--primary-green); margin-bottom: 1rem;">Approvals & Workflow</h1>
+            
+            <div class="filter-section">
+                <div class="filter-row">
+                    <input type="text" id="approvalSearch" placeholder="Search missions...">
+                    <select id="approvalStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="approvalsSection"></div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <h1 style="color: var(--primary-green); margin-bottom: 1.5rem;">Monthly Reports & Analytics</h1>
+            
+            <div class="dashboard-grid">
+                <div class="card stat-card">
+                    <p class="stat-label">Total Staff</p>
+                    <p class="stat-number" id="totalStaff">0</p>
+                </div>
+                <div class="card stat-card orange">
+                    <p class="stat-label">Avg Days/Staff</p>
+                    <p class="stat-number" id="avgDays">0</p>
+                </div>
+                <div class="card stat-card">
+                    <p class="stat-label">Total Travel Days</p>
+                    <p class="stat-number" id="totalDaysReported">0</p>
+                </div>
+                <div class="card stat-card danger">
+                    <p class="stat-label">Pending Review</p>
+                    <p class="stat-number" id="totalPending">0</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="color: var(--primary-green); margin-bottom: 1.5rem;">Staff Travel Days Report</h2>
+                <div id="staffReport"></div>
+            </div>
+
+            <div class="card mt-2">
+                <h2 style="color: var(--primary-green); margin-bottom: 1.5rem;">Monthly Trends</h2>
+                <div id="trendsReport"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Approval Modal -->
+    <div id="approvalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Approve/Reject Mission</h2>
+                <button class="modal-close" onclick="closeApprovalModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Mission Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mission Details</h2>
+                <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+            </div>
+            <div id="detailsModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const app = {
+            currentUser: {
+                id: 'USR001',
+                name: 'Ahmed Hassan',
+                role: 'staff', // 'staff', 'supervisor', 'budget', 'finance', 'procurement', 'admin'
+                department: 'Operations',
+                avatar: 'AH'
+            },
+            missions: [],
+            approvals: []
+        };
+
+        // Initialize Application
+        function init() {
+            loadDataFromLocalStorage();
+            setupEventListeners();
+            updateDashboard();
+            displayUserInfo();
+            createSampleData();
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    switchSection(section);
+                });
+            });
+
+            // Mission Form
+            document.getElementById('missionForm').addEventListener('submit', submitMission);
+            document.getElementById('startDate').addEventListener('change', calculateDays);
+            document.getElementById('endDate').addEventListener('change', calculateDays);
+
+            // Filters
+            document.getElementById('searchInput').addEventListener('input', filterMissions);
+            document.getElementById('statusFilter').addEventListener('change', filterMissions);
+            document.getElementById('monthFilter').addEventListener('change', filterMissions);
+            document.getElementById('approvalSearch').addEventListener('input', filterApprovals);
+            document.getElementById('approvalStatusFilter').addEventListener('change', filterApprovals);
+        }
+
+        // Switch Sections
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Refresh section data
+            if (sectionId === 'missions') {
+                displayMissions();
+            } else if (sectionId === 'approvals') {
+                displayApprovals();
+            } else if (sectionId === 'reports') {
+                displayReports();
+            }
+        }
+
+        // Display User Info
+        function displayUserInfo() {
+            document.getElementById('userName').textContent = app.currentUser.name;
+            document.getElementById('userAvatar').textContent = app.currentUser.avatar;
+        }
+
+        // Calculate Total Days
+        function calculateDays() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            if (startDate && endDate && endDate >= startDate) {
+                const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('totalDays').value = days;
+            }
+        }
+
+        // Submit Mission
+        function submitMission(e) {
+            e.preventDefault();
+
+            const mission = {
+                id: 'MIS-' + Date.now(),
+                staffName: document.getElementById('staffName').value,
+                department: document.getElementById('department').value,
+                title: document.getElementById('missionTitle').value,
+                description: document.getElementById('missionDescription').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                totalDays: parseInt(document.getElementById('totalDays').value),
+                location: document.getElementById('location').value,
+                budget: parseFloat(document.getElementById('budget').value),
+                budgetCode: document.getElementById('budgetCode').value,
+                supervisor: document.getElementById('supervisor').value,
+                status: 'pending',
+                submittedDate: new Date().toLocaleDateString(),
+                approvalWorkflow: [
+                    { role: 'Supervisor', name: document.getElementById('supervisor').value, status: 'pending', date: null, comment: '' },
+                    { role: 'Budget Holder', name: '', status: 'pending', date: null, comment: '' },
+                    { role: 'Finance', name: '', status: 'pending', date: null, comment: '' },
+                    { role: 'Procurement', name: '', status: 'pending', date: null, comment: '' }
+                ]
+            };
+
+            app.missions.push(mission);
+            saveDataToLocalStorage();
+            showAlert('Mission submitted successfully!', 'success');
+            document.getElementById('missionForm').reset();
+            switchSection('dashboard');
+            updateDashboard();
+        }
+
+        // Display Dashboard
+        function updateDashboard() {
+            const approvedCount = app.missions.filter(m => m.status === 'approved').length;
+            const rejectedCount = app.missions.filter(m => m.status === 'rejected').length;
+            const pendingCount = app.missions.filter(m => m.status === 'pending').length;
+
+            // Update stats
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('totalMissions').textContent = app.missions.length;
+            document.getElementById('approvedMonth').textContent = approvedCount;
+            document.getElementById('rejectedMonth').textContent = rejectedCount;
+
+            // Display recent missions
+            const recentMissions = app.missions.slice(-5).reverse();
+            const recentHtml = recentMissions.length > 0 ? `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Staff</th>
+                            <th>Days</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentMissions.map(m => `
+                            <tr>
+                                <td><strong>${m.title}</strong></td>
+                                <td>${m.staffName}</td>
+                                <td>${m.totalDays}</td>
+                                <td>${m.submittedDate}</td>
+                                <td><span class="badge badge-${getStatusClass(m.status)}">${capitalize(m.status)}</span></td>
+                                <td><button class="btn btn-primary btn-small" onclick="viewMissionDetails('${m.id}')">View</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<div class="no-data">No missions yet. Create one to get started!</div>';
+
+            document.getElementById('recentMissions').innerHTML = recentHtml;
+        }
+
+        // Display Missions
+        function displayMissions() {
+            const missionsHtml = app.missions.length > 0 ? `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Days</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${app.missions.map(m => `
+                            <tr>
+                                <td><strong>${m.id}</strong></td>
+                                <td>${m.title}</td>
+                                <td>${m.location}</td>
+                                <td>${m.totalDays}</td>
+                                <td>${m.startDate} to ${m.endDate}</td>
+                                <td><span class="badge badge-${getStatusClass(m.status)}">${capitalize(m.status)}</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-small" onclick="viewMissionDetails('${m.id}')">View</button>
+                                    ${m.status === 'pending' ? `<button class="btn btn-secondary btn-small" onclick="editMission('${m.id}')">Edit</button>` : ''}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<div class="empty-state"><p class="empty-state-icon">📋</p><h2>No Missions Yet</h2><p>Create your first mission request to get started!</p></div>';
+
+            document.getElementById('missionsTable').innerHTML = missionsHtml;
+        }
+
+        // Display Approvals
+        function displayApprovals() {
+            const pendingMissions = app.missions.filter(m => m.status === 'pending');
+            
+            if (pendingMissions.length === 0) {
+                document.getElementById('approvalsSection').innerHTML = '<div class="empty-state"><p class="empty-state-icon">✓</p><h2>All Clear</h2><p>No pending approvals at this time.</p></div>';
+                return;
+            }
+
+            let approvalsHtml = '';
+            pendingMissions.forEach(mission => {
+                approvalsHtml += `
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-green);">${mission.title}</h3>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <strong>${mission.staffName}</strong> • ${mission.department} • ${mission.totalDays} days
+                                </p>
+                            </div>
+                            <button class="btn btn-primary orange" onclick="openApprovalModal('${mission.id}')">Action Required</button>
+                        </div>
+                        
+                        <div class="workflow-timeline">
+                            ${mission.approvalWorkflow.map((step, index) => `
+                                <div class="workflow-step">
+                                    <div class="workflow-indicator ${step.status}">
+                                        ${step.status === 'approved' ? '✓' : step.status === 'rejected' ? '✕' : index + 1}
+                                    </div>
+                                    <div class="workflow-content">
+                                        <div class="workflow-role">${step.role}</div>
+                                        <div class="workflow-status">${capitalize(step.status)}</div>
+                                        ${step.comment ? `<div class="workflow-comment">${step.comment}</div>` : ''}
+                                        ${step.date ? `<div class="workflow-status" style="font-size: 0.85rem;">${step.date}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('approvalsSection').innerHTML = approvalsHtml;
+        }
+
+        // Open Approval Modal
+        function openApprovalModal(missionId) {
+            const mission = app.missions.find(m => m.id === missionId);
+            if (!mission) return;
+
+            let modalHtml = `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">${mission.title}</h3>
+                    <p style="color: var(--text-secondary); margin: 0;">
+                        ${mission.staffName} • ${mission.totalDays} days • ${mission.location}
+                    </p>
+                </div>
+
+                <div style="background: var(--gray-100); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p><strong>Budget:</strong> $${mission.budget.toFixed(2)}</p>
+                    <p><strong>Budget Code:</strong> ${mission.budgetCode}</p>
+                    <p><strong>Description:</strong> ${mission.description}</p>
+                </div>
+
+                <h4 style="color: var(--primary-green); margin-bottom: 1rem;">Your Action</h4>
+                
+                <div class="form-group">
+                    <label>Decision</label>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="button" class="btn btn-primary" onclick="approveMission('${missionId}')">Approve</button>
+                        <button type="button" class="btn btn-danger" onclick="rejectMission('${missionId}')">Reject</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="approvalComment">Comments (Optional)</label>
+                    <textarea id="approvalComment" placeholder="Add your comments..."></textarea>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = modalHtml;
+            document.getElementById('approvalModal').classList.add('active');
+        }
+
+        // Approve Mission
+        function approveMission(missionId) {
+            const mission = app.missions.find(m => m.id === missionId);
+            if (!mission) return;
+
+            const comment = document.getElementById('approvalComment').value;
+            const currentStepIndex = mission.approvalWorkflow.findIndex(w => w.status === 'pending');
+
+            if (currentStepIndex !== -1) {
+                mission.approvalWorkflow[currentStepIndex].status = 'approved';
+                mission.approvalWorkflow[currentStepIndex].date = new Date().toLocaleDateString();
+                mission.approvalWorkflow[currentStepIndex].comment = comment;
+            }
+
+            // Check if all steps approved
+            const allApproved = mission.approvalWorkflow.every(w => w.status === 'approved');
+            if (allApproved) {
+                mission.status = 'approved';
+                showAlert(`Mission ${mission.id} has been fully approved!`, 'success');
+            } else {
+                showAlert('Approval recorded. Next approver will be notified.', 'success');
+            }
+
+            saveDataToLocalStorage();
+            closeApprovalModal();
+            displayApprovals();
+            updateDashboard();
+        }
+
+        // Reject Mission
+        function rejectMission(missionId) {
+            const mission = app.missions.find(m => m.id === missionId);
+            if (!mission) return;
+
+            const comment = document.getElementById('approvalComment').value;
+            if (!comment) {
+                showAlert('Please provide a reason for rejection.', 'danger');
+                return;
+            }
+
+            const currentStepIndex = mission.approvalWorkflow.findIndex(w => w.status === 'pending');
+            if (currentStepIndex !== -1) {
+                mission.approvalWorkflow[currentStepIndex].status = 'rejected';
+                mission.approvalWorkflow[currentStepIndex].date = new Date().toLocaleDateString();
+                mission.approvalWorkflow[currentStepIndex].comment = comment;
+            }
+
+            mission.status = 'rejected';
+            showAlert('Mission has been rejected.', 'success');
+            saveDataToLocalStorage();
+            closeApprovalModal();
+            displayApprovals();
+            updateDashboard();
+        }
+
+        // Close Approval Modal
+        function closeApprovalModal() {
+            document.getElementById('approvalModal').classList.remove('active');
+            document.getElementById('modalBody').innerHTML = '';
+        }
+
+        // View Mission Details
+        function viewMissionDetails(missionId) {
+            const mission = app.missions.find(m => m.id === missionId);
+            if (!mission) return;
+
+            let detailsHtml = `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">${mission.title}</h3>
+                    <span class="badge badge-${getStatusClass(mission.status)}">${capitalize(mission.status)}</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Staff Name</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.staffName}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Department</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.department}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Location</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.location}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Total Days</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.totalDays}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Start Date</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.startDate}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">End Date</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.endDate}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Budget</p>
+                        <p style="margin: 0; font-weight: 600;">$${mission.budget.toFixed(2)}</p>
+                    </div>
+                    <div>
+                        <p style="margin: 0 0 0.25rem 0; color: var(--text-secondary); font-size: 0.9rem;">Budget Code</p>
+                        <p style="margin: 0; font-weight: 600;">${mission.budgetCode}</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--gray-100); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin: 0 0 0.5rem 0; color: var(--text-secondary); font-size: 0.9rem;"><strong>Description</strong></p>
+                    <p style="margin: 0;">${mission.description}</p>
+                </div>
+
+                <h4 style="color: var(--primary-green); margin-bottom: 1rem;">Approval Workflow</h4>
+                <div class="workflow-timeline">
+                    ${mission.approvalWorkflow.map((step, index) => `
+                        <div class="workflow-step">
+                            <div class="workflow-indicator ${step.status}">
+                                ${step.status === 'approved' ? '✓' : step.status === 'rejected' ? '✕' : index + 1}
+                            </div>
+                            <div class="workflow-content">
+                                <div class="workflow-role">${step.role}</div>
+                                <div class="workflow-status">${capitalize(step.status)}</div>
+                                ${step.comment ? `<div class="workflow-comment">${step.comment}</div>` : ''}
+                                ${step.date ? `<div class="workflow-status" style="font-size: 0.85rem;">${step.date}</div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('detailsModalBody').innerHTML = detailsHtml;
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        // Close Details Modal
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('detailsModalBody').innerHTML = '';
+        }
+
+        // Filter Missions
+        function filterMissions() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const month = document.getElementById('monthFilter').value;
+
+            let filtered = app.missions.filter(m => {
+                const matchSearch = m.title.toLowerCase().includes(search) || m.location.toLowerCase().includes(search);
+                const matchStatus = !status || m.status === status;
+                const matchMonth = !month || m.startDate.startsWith(month);
+                return matchSearch && matchStatus && matchMonth;
+            });
+
+            const missionsHtml = filtered.length > 0 ? `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Days</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(m => `
+                            <tr>
+                                <td><strong>${m.id}</strong></td>
+                                <td>${m.title}</td>
+                                <td>${m.location}</td>
+                                <td>${m.totalDays}</td>
+                                <td>${m.startDate} to ${m.endDate}</td>
+                                <td><span class="badge badge-${getStatusClass(m.status)}">${capitalize(m.status)}</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-small" onclick="viewMissionDetails('${m.id}')">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<div class="empty-state"><p class="empty-state-icon">🔍</p><h2>No Missions Found</h2><p>Try adjusting your filters.</p></div>';
+
+            document.getElementById('missionsTable').innerHTML = missionsHtml;
+        }
+
+        // Filter Approvals
+        function filterApprovals() {
+            const search = document.getElementById('approvalSearch').value.toLowerCase();
+            const status = document.getElementById('approvalStatusFilter').value;
+
+            let filtered = app.missions.filter(m => {
+                const matchSearch = m.title.toLowerCase().includes(search) || m.staffName.toLowerCase().includes(search);
+                const matchStatus = !status || m.status === status;
+                return matchSearch && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('approvalsSection').innerHTML = '<div class="empty-state"><p class="empty-state-icon">✓</p><h2>No Results</h2><p>No missions match your filters.</p></div>';
+                return;
+            }
+
+            let approvalsHtml = '';
+            filtered.forEach(mission => {
+                approvalsHtml += `
+                    <div class="card" style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-green);">${mission.title}</h3>
+                                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <strong>${mission.staffName}</strong> • ${mission.department} • ${mission.totalDays} days
+                                </p>
+                            </div>
+                            ${mission.status === 'pending' ? `<button class="btn btn-primary orange" onclick="openApprovalModal('${mission.id}')">Action Required</button>` : `<span class="badge badge-${getStatusClass(mission.status)}">${capitalize(mission.status)}</span>`}
+                        </div>
+                        
+                        <div class="workflow-timeline">
+                            ${mission.approvalWorkflow.map((step, index) => `
+                                <div class="workflow-step">
+                                    <div class="workflow-indicator ${step.status}">
+                                        ${step.status === 'approved' ? '✓' : step.status === 'rejected' ? '✕' : index + 1}
+                                    </div>
+                                    <div class="workflow-content">
+                                        <div class="workflow-role">${step.role}</div>
+                                        <div class="workflow-status">${capitalize(step.status)}</div>
+                                        ${step.comment ? `<div class="workflow-comment">${step.comment}</div>` : ''}
+                                        ${step.date ? `<div class="workflow-status" style="font-size: 0.85rem;">${step.date}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('approvalsSection').innerHTML = approvalsHtml;
+        }
+
+        // Display Reports
+        function displayReports() {
+            const approvedMissions = app.missions.filter(m => m.status === 'approved');
+            const staffData = {};
+
+            approvedMissions.forEach(mission => {
+                if (!staffData[mission.staffName]) {
+                    staffData[mission.staffName] = {
+                        name: mission.staffName,
+                        department: mission.department,
+                        totalDays: 0,
+                        missionsCount: 0,
+                        missions: []
+                    };
+                }
+                staffData[mission.staffName].totalDays += mission.totalDays;
+                staffData[mission.staffName].missionsCount++;
+                staffData[mission.staffName].missions.push(mission.title);
+            });
+
+            const staffArray = Object.values(staffData).sort((a, b) => b.totalDays - a.totalDays);
+            const avgDays = staffArray.length > 0 ? Math.round(staffArray.reduce((sum, s) => sum + s.totalDays, 0) / staffArray.length) : 0;
+            const totalDaysReported = staffArray.reduce((sum, s) => sum + s.totalDays, 0);
+
+            document.getElementById('totalStaff').textContent = staffArray.length;
+            document.getElementById('avgDays').textContent = avgDays;
+            document.getElementById('totalDaysReported').textContent = totalDaysReported;
+            document.getElementById('totalPending').textContent = app.missions.filter(m => m.status === 'pending').length;
+
+            const reportHtml = staffArray.length > 0 ? `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Staff Name</th>
+                            <th>Department</th>
+                            <th>Missions Count</th>
+                            <th>Total Days</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${staffArray.map(staff => `
+                            <tr>
+                                <td><strong>${staff.name}</strong></td>
+                                <td>${staff.department}</td>
+                                <td>${staff.missionsCount}</td>
+                                <td><strong>${staff.totalDays}</strong></td>
+                                <td><small>${staff.missions.join(', ')}</small></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<div class="no-data">No approved missions yet.</div>';
+
+            document.getElementById('staffReport').innerHTML = reportHtml;
+
+            // Monthly trends
+            const monthlyData = {};
+            app.missions.forEach(mission => {
+                const month = mission.startDate.substring(0, 7);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = { count: 0, days: 0, approved: 0 };
+                }
+                monthlyData[month].count++;
+                monthlyData[month].days += mission.totalDays;
+                if (mission.status === 'approved') monthlyData[month].approved++;
+            });
+
+            const trendsHtml = Object.keys(monthlyData).length > 0 ? `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Submitted</th>
+                            <th>Approved</th>
+                            <th>Total Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.keys(monthlyData).sort().reverse().map(month => `
+                            <tr>
+                                <td><strong>${month}</strong></td>
+                                <td>${monthlyData[month].count}</td>
+                                <td>${monthlyData[month].approved}</td>
+                                <td>${monthlyData[month].days}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '<div class="no-data">No data available yet.</div>';
+
+            document.getElementById('trendsReport').innerHTML = trendsHtml;
+        }
+
+        // Show Alert
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+            }, 4000);
+        }
+
+        // Helper Functions
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function getStatusClass(status) {
+            if (status === 'approved') return 'success';
+            if (status === 'rejected') return 'danger';
+            return 'warning';
+        }
+
+        // Local Storage
+        function saveDataToLocalStorage() {
+            localStorage.setItem('missionAppData', JSON.stringify(app.missions));
+        }
+
+        function loadDataFromLocalStorage() {
+            const data = localStorage.getItem('missionAppData');
+            if (data) {
+                app.missions = JSON.parse(data);
+            }
+        }
+
+        // Sample Data
+        function createSampleData() {
+            if (app.missions.length > 0) return;
+
+            const sampleMissions = [
+                {
+                    id: 'MIS-2024001',
+                    staffName: 'Kofi Mensah',
+                    department: 'Sales',
+                    title: 'Client Presentation in Accra',
+                    description: 'Attend quarterly client meeting and present Q1 sales results',
+                    startDate: '2024-04-15',
+                    endDate: '2024-04-17',
+                    totalDays: 3,
+                    location: 'Accra, Ghana',
+                    budget: 2500,
+                    budgetCode: 'SALES-2024-Q1',
+                    supervisor: 'Jane Smith',
+                    status: 'approved',
+                    submittedDate: '2024-03-28',
+                    approvalWorkflow: [
+                        { role: 'Supervisor', name: 'Jane Smith', status: 'approved', date: '2024-03-29', comment: 'Approved - important client meeting' },
+                        { role: 'Budget Holder', name: 'Peter Johnson', status: 'approved', date: '2024-03-30', comment: 'Budget allocated' },
+                        { role: 'Finance', name: 'Maria Garcia', status: 'approved', date: '2024-04-01', comment: 'Payment cleared' },
+                        { role: 'Procurement', name: 'David Chen', status: 'approved', date: '2024-04-02', comment: 'Logistics arranged' }
+                    ]
+                },
+                {
+                    id: 'MIS-2024002',
+                    staffName: 'Amina Hassan',
+                    department: 'Operations',
+                    title: 'Training Workshop - Lagos',
+                    description: 'Attend advanced project management training in Lagos',
+                    startDate: '2024-05-10',
+                    endDate: '2024-05-12',
+                    totalDays: 3,
+                    location: 'Lagos, Nigeria',
+                    budget: 1800,
+                    budgetCode: 'HR-TRAINING-2024',
+                    supervisor: 'Robert Williams',
+                    status: 'pending',
+                    submittedDate: '2024-04-10',
+                    approvalWorkflow: [
+                        { role: 'Supervisor', name: 'Robert Williams', status: 'pending', date: null, comment: '' },
+                        { role: 'Budget Holder', name: 'Peter Johnson', status: 'pending', date: null, comment: '' },
+                        { role: 'Finance', name: 'Maria Garcia', status: 'pending', date: null, comment: '' },
+                        { role: 'Procurement', name: 'David Chen', status: 'pending', date: null, comment: '' }
+                    ]
+                },
+                {
+                    id: 'MIS-2024003',
+                    staffName: 'Kwesi Boateng',
+                    department: 'Marketing',
+                    title: 'Trade Show Exhibition - Cairo',
+                    description: 'Represent company at African Business Forum exhibition',
+                    startDate: '2024-06-01',
+                    endDate: '2024-06-05',
+                    totalDays: 5,
+                    location: 'Cairo, Egypt',
+                    budget: 5000,
+                    budgetCode: 'MKT-EVENTS-2024',
+                    supervisor: 'Sarah Thompson',
+                    status: 'approved',
+                    submittedDate: '2024-04-05',
+                    approvalWorkflow: [
+                        { role: 'Supervisor', name: 'Sarah Thompson', status: 'approved', date: '2024-04-06', comment: 'Key marketing initiative' },
+                        { role: 'Budget Holder', name: 'Peter Johnson', status: 'approved', date: '2024-04-08', comment: 'Approved' },
+                        { role: 'Finance', name: 'Maria Garcia', status: 'approved', date: '2024-04-10', comment: 'Funds released' },
+                        { role: 'Procurement', name: 'David Chen', status: 'approved', date: '2024-04-12', comment: 'Complete' }
+                    ]
+                }
+            ];
+
+            app.missions = sampleMissions;
+            saveDataToLocalStorage();
+        }
+
+        // Edit Mission (stub)
+        function editMission(missionId) {
+            showAlert('Edit functionality coming soon!', 'info');
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const approvalModal = document.getElementById('approvalModal');
+            const detailsModal = document.getElementById('detailsModal');
+            if (event.target === approvalModal) {
+                closeApprovalModal();
+            }
+            if (event.target === detailsModal) {
+                closeDetailsModal();
+            }
+        });
+    </script>
+</body>
+</html>
